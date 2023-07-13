@@ -1,8 +1,10 @@
 from django.contrib.auth import authenticate, login, logout
+from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib import messages
+from mysite import settings
 
 
 
@@ -62,13 +64,20 @@ def signup(request):
 
         myuser.save()
 
-        messages.success(request, "Your account has been successfully created!")
+        messages.success(request, "Your account has been successfully created! "
+                                  "Please check your email for confirmation.")
 
         # Welcome Email
 
         subject = "Welcome to CineMatch!"
-        message = "Hello " + myuser.first_name + "! \n" + "Welcome to CineMatch! \n Thank you for registering. \n Please confirm your email address to continue. \n\n Best Regards, \n CineMatch Team"
+        message = "Hello " + myuser.first_name + "! \n" + "Welcome to CineMatch! " \
+                                                          "\n Thank you for registering. " \
+                                                          "\n Please confirm your email address to continue. " \
+                                                          "\n\n Best Regards, " \
+                                                          "\n CineMatch Team"
         from_email = settings.EMAIL_HOST_USER
+        to_list = [myuser.email]
+        send_mail(subject, message, from_email, to_list, fail_silently=True)
 
         return redirect("login")
 
