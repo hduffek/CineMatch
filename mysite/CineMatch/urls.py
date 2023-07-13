@@ -8,3 +8,4 @@ urlpatterns = [
     path("logout", views.logout, name="logout"),
     path("questions", views.questions, name="questions")
 ]
+
