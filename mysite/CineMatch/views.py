@@ -16,3 +16,7 @@ def signup(request):
 
 def logout(request):
     pass
+
+
+def questions(request):
+    return render(request, "CineMatch/search.html")
