@@ -1,0 +1,63 @@
+
+<form method="POST" action = "ACTION_OR_VIEW_URL_ON_SUBMIT_HERE">{% csrf_token %}
+    <h4>Choose a genre!</h4>
+    <select datatype="text" id="genreSelect" name="genreSelect">
+        <option selected>--------------------</option>
+        <option>HORROR</option>
+        <option>ROMANCE</option>
+        <option>COMEDY</option>
+        <option>ACTION</option>
+        <option>DOCUMENTARY</option>
+    </select>
+    <form method="POST" action = "ACTION_OR_VIEW_URL_ON_SUBMIT_HERE">{% csrf_token %}
+        <h4>Movie or TV Show?</h4>
+        <select datatype="text" id="tmSelect" name="tmSelect">
+            <option selected>-----------</option>
+            <option>TV SHOW</option>
+            <option>MOVIE</option>
+            <option>EITHER</option>
+        </select>
+     </form>
+
+    <h4>Type in an Actor Here:</h4>
+    <form method="post">
+        {% csrf_token %}
+        <input type="text" name="text" placeholder="Enter text here">
+     <br><br>
+    </form>
+    <h4> Type in Another Actor Here:</h4>
+    <form method="post">
+    {% csrf_token %}
+        <input type="text" name="text" placeholder="Enter text here">
+    </form>
+    <h4>Type in a Director Here:</h4>
+    <form method="post">
+    {% csrf_token %}
+        <input type="text" name="text" placeholder="Enter text here">
+    </form>
+    <h4>Type in Another Director Here:</h4>
+    <form method="post">
+    {% csrf_token %}
+        <input type="text" name="text" placeholder="Enter text here">
+    </form>
+
+    <h4>Rating Preference?</h4>
+    <select datatype="text" id="ratingSelect" name="ratingSelect">
+        <option selected>--------------------</option>
+        <option>5 Stars</option>
+        <option>4 Stars & Above</option>
+        <option>3 Stars & Above</option>
+        <option>2 Stars & Above</option>
+    </select>
+
+
+
+
+
+
+
+
+
+
+
+</form>
