@@ -1,12 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta name="description" content="">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="">
+    <meta charset="utf-8">
     <title>CineMatch</title>
 </head>
 <body>
@@ -25,13 +20,13 @@
     {% if user.is_authenticated %}
     <h3>Hello {{ fname }}</h3>
     <h4>You've been successfully logged in.</h4>
-    <button type="submit"> <a href="signout"> SignOut</a></button>
+    <button type="submit"> <a href="{% url 'signout' %}"> Sign Out</a></button>
+    <button type="submit"> <a href="{% url 'search_results' %}">Continue</a></button>
 
     {% else %}
-    <button type="submit"> <a href="signup"> SignUp</a></button>
-    <button type="submit"> <a href="signin"> SignIn</a></button>
+    <button type="submit"> <a href="{% url 'signup' %}"> Sign Up</a></button>
+    <button type="submit"> <a href="{% url 'signin' %}"> Sign In</a></button>
     {% endif %}
-
 
     <script src="" async defer></script>
 </body>

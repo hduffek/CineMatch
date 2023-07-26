@@ -1,15 +1,20 @@
+import random
+import requests as req
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from django.contrib.sites import requests
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail, EmailMessage
-from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from django.contrib import messages
+from django.shortcuts import redirect
+from django.shortcuts import render
 from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-from .tokens import generate_token
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 
 from mysite import settings
+from .forms import QuestionnaireForm
+from .tokens import generate_token
 
 
 def home(request):
@@ -129,5 +134,235 @@ def activate(request, uidb64, token):
         return render(request, "activation_failed.html")
 
 
+TMDB_API_KEY = '898686cb40052c4a3aeb81c6101d95ea'
+TMDB_BASE_URL = 'https://api.themoviedb.org/3/'
+
+
 def search(request):
+    form = QuestionnaireForm()
+
+    if request.method == "POST":
+        form = QuestionnaireForm(request.POST)
+        if form.is_valid():
+            actor = form.cleaned_data.get('actor_select').strip()
+            director = form.cleaned_data.get('director_select').strip()
+            genre = form.cleaned_data.get('genre_select')
+            rating_preference = form.cleaned_data.get('rating_select', 'NO_PREFERENCE')
+
+            # Enforce the constraint: If the user searches for an actor, then they cannot search for director or genre
+            if actor and (director or (genre and genre != 'NO_PREFERENCE')):
+                error_message = "You cannot search for an actor along with director or genre."
+                return render(request, "CineMatch/search.html", {"form": form, "error_message": error_message})
+
+            # Enforce the constraint: If the user searches for a director, then they cannot search for actor or genre
+            if director and (actor or (genre and genre != 'NO_PREFERENCE')):
+                error_message = "You cannot search for a director along with actor or genre."
+                return render(request, "CineMatch/search.html", {"form": form, "error_message": error_message})
+
+            # Construct the query based on the user's search criteria
+            if actor:
+                movies = fetch_actor_movies(actor)
+            elif director:
+                movies = fetch_director_movies(director)
+            elif genre and genre != 'NO_PREFERENCE':
+                # Convert genre ID to string before passing it to fetch_movie_data
+                movies = fetch_movie_data(str(genre))
+            else:
+                # Handle the case where no criteria is selected
+                error_message = "Please select an actor, director, or genre."
+                return render(request, "CineMatch/search.html", {"form": form, "error_message": error_message})
+
+            # Sort movies based on rating preference
+            if rating_preference == 'LOWEST':
+                movies.sort(key=lambda x: x.get('vote_average', 0))
+            elif rating_preference == 'HIGHEST':
+                movies.sort(key=lambda x: x.get('vote_average', 0), reverse=True)
+
+            # Get the top 5 movie results
+            top_5_movies = movies[:5]
+
+            return render(request, "CineMatch/recommendations.html", {"movies": top_5_movies})
+
+    return render(request, "CineMatch/search.html", {"form": form})
+
+
+def continue_to_search(request):
     return render(request, "CineMatch/search.html")
+
+
+def get_movie_recommendations(request, actor, director, genre):
+    if request.method == "GET":
+        # Get the query parameters from the URL
+        actor_name = request.GET.get('actor_select')
+        director_name = request.GET.get('director_select')
+        rating_preference = request.GET.get('rating_select', 'NO_PREFERENCE')
+
+        # Check if both actor and director are entered
+        if actor_name and director_name:
+            error_message = "You cannot search for both an actor and a director simultaneously."
+            return render(request, "CineMatch/search.html", {"error_message": error_message})
+
+        # Fetch movie data from TMDB API based on the query parameters
+        if actor_name:
+            movies = fetch_actor_movies(actor_name)
+        elif director_name:
+            movies = fetch_director_movies(director_name)
+        else:
+            query_params = genre
+            movies = fetch_movie_data(query_params)
+
+        # Sort movies based on rating preference (if applicable)
+        if rating_preference == 'LOWEST':
+            movies.sort(key=lambda x: x.get('vote_average', 0))
+        elif rating_preference == 'HIGHEST':
+            movies.sort(key=lambda x: x.get('vote_average', 0), reverse=True)
+
+        # Get the top 5 movie results
+        top_5_movies = movies[:5]
+
+        return render(request, "CineMatch/recommendations.html", {"movies": top_5_movies})
+    else:
+        form = QuestionnaireForm()
+        return render(request, "CineMatch/search.html", {"form": form})
+
+
+def fetch_movie_data(genre_id):
+    api_key = '898686cb40052c4a3aeb81c6101d95ea'
+    api_url = f'https://api.themoviedb.org/3/discover/movie'
+    params = {
+        'api_key': api_key,
+        'with_genres': genre_id,
+        'sort_by': 'popularity.desc',
+        'include_adult': 'false',
+        'include_video': 'false'
+    }
+
+    if genre_id:
+        params['with_genres'] = genre_id
+
+    try:
+        response = req.get(api_url, params=params)
+        response.raise_for_status()
+        data = response.json()
+        movies = data.get('results', [])
+        return movies
+    except req.exceptions.RequestException as e:
+        # Handle API request errors here
+        print(f"Error fetching movie data: {e}")
+        return []
+
+
+def fetch_actor_id(actor_name):
+    api_key = '898686cb40052c4a3aeb81c6101d95ea'
+    api_url = f'https://api.themoviedb.org/3/search/person'
+    params = {
+        'api_key': api_key,
+        'query': actor_name,
+    }
+
+    try:
+        response = req.get(api_url, params=params)
+        response.raise_for_status()
+        data = response.json()
+        actor_results = data.get('results', [])
+        # Iterate through the results to find the best match for the actor name
+        for result in actor_results:
+            known_for_titles = result.get('known_for', [])
+            for movie in known_for_titles:
+                if actor_name.lower() in movie.get('original_title', '').lower():
+                    return result.get('id')
+        return None
+    except req.exceptions.RequestException as e:
+        # Handle API request errors here
+        print(f"Error fetching actor ID: {e}")
+        return None
+
+
+def fetch_actor_movies(actor_name):
+    api_key = '898686cb40052c4a3aeb81c6101d95ea'
+    base_url = 'https://api.themoviedb.org/3'
+    endpoint = '/search/person'
+
+    # Search for the actor's ID based on their name
+    params = {
+        'api_key': api_key,
+        'language': 'en-US',
+        'query': actor_name
+    }
+
+    try:
+        response = req.get(base_url + endpoint, params=params)
+        response.raise_for_status()
+        data = response.json()
+        actors = data.get('results', [])
+        if not actors:
+            print(f"No actors found for the given name: {actor_name}")
+            return []
+
+        # Get the ID of the first actor in the search results
+        actor_id = actors[0]['id']
+
+        # Fetch movies starring the actor based on their ID
+        endpoint = f'/person/{actor_id}/movie_credits'
+        params = {
+            'api_key': api_key,
+            'language': 'en-US',
+        }
+
+        response = req.get(base_url + endpoint, params=params)
+        response.raise_for_status()
+        data = response.json()
+        movies = data.get('cast', [])
+        return movies
+
+    except req.exceptions.RequestException as e:
+        # Handle API request errors
+        print(f"Error fetching actor movies: {e}")
+        return []
+
+
+def fetch_director_movies(director_name):
+    api_key = '898686cb40052c4a3aeb81c6101d95ea'
+    base_url = 'https://api.themoviedb.org/3'
+    endpoint = '/search/person'
+
+    # Search for the director's ID based on their name
+    params = {
+        'api_key': api_key,
+        'language': 'en-US',
+        'query': director_name
+    }
+
+    try:
+        response = req.get(base_url + endpoint, params=params)
+        response.raise_for_status()
+        data = response.json()
+        directors = data.get('results', [])
+        if not directors:
+            print(f"No directors found for the given name: {director_name}")
+            return []
+
+        # Get the ID of the first director in the search results
+        director_id = directors[0]['id']
+
+        # Fetch movies strictly directed by the director based on their ID
+        endpoint = f'/discover/movie'
+        params = {
+            'api_key': api_key,
+            'language': 'en-US',
+            'with_crew': f'{director_id}',
+            'sort_by': 'popularity.desc',
+            'include_adult': 'false',
+            'include_video': 'false'
+        }
+
+        response = req.get(base_url + endpoint, params=params)
+        response.raise_for_status()
+        data = response.json()
+        movies = data.get('results', [])
+        return movies
+
+    except req.exceptions.RequestException as e:
+        # Handle API request errors
+        print(f"Error fetching director movies: {e}")
+        return []

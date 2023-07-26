@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Movie Recommendations</title>
+</head>
+<body>
+    <h1>Top 5 Movie Recommendations</h1>
+    <ul>
+        {% for movie in movies %}
+            <li>
+                <h2>{{ movie.title }}</h2>
+                <p>Release Date: {{ movie.release_date }}</p>
+                <p>Vote Average: {{ movie.vote_average }}</p>
+                <p>Overview: {{ movie.overview }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+    <p><a href="{% url 'search_results' %}">Go Back to Search</a></p>
+</body>
+</html>

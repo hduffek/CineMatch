@@ -1,63 +1,38 @@
-
-<form method="POST" action = "ACTION_OR_VIEW_URL_ON_SUBMIT_HERE">{% csrf_token %}
-    <h4>Choose a genre!</h4>
-    <select datatype="text" id="genreSelect" name="genreSelect">
-        <option selected>--------------------</option>
-        <option>HORROR</option>
-        <option>ROMANCE</option>
-        <option>COMEDY</option>
-        <option>ACTION</option>
-        <option>DOCUMENTARY</option>
-    </select>
-    <form method="POST" action = "ACTION_OR_VIEW_URL_ON_SUBMIT_HERE">{% csrf_token %}
-        <h4>Movie or TV Show?</h4>
-        <select datatype="text" id="tmSelect" name="tmSelect">
-            <option selected>-----------</option>
-            <option>TV SHOW</option>
-            <option>MOVIE</option>
-            <option>EITHER</option>
-        </select>
-     </form>
-
-    <h4>Type in an Actor Here:</h4>
-    <form method="post">
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Movie Search</title>
+</head>
+<body>
+    <form method="GET" action="{% url 'recommendations' 'NO_ACTOR' 'NO_DIRECTOR' 'NO_GENRE' %}">
         {% csrf_token %}
-        <input type="text" name="text" placeholder="Enter text here">
-     <br><br>
+        <h4>Choose a genre!</h4>
+        <select name="genre_select">
+            <option selected value="NO_PREFERENCE">No Preference</option>
+            <option value="27">Horror</option>
+            <option value="10749">Romance</option>
+            <option value="35">Comedy</option>
+            <option value="28">Action</option>
+            <option value="99">Documentary</option>
+        </select>
+
+        <h4>Search an Actor:</h4>
+        <input type="text" name="actor_select" placeholder="Enter actor name">
+        <br><br>
+
+        <h4>Search a Director:</h4>
+        <input type="text" name="director_select" placeholder="Enter director name">
+        <br><br>
+
+        <h4>Rating Preference:</h4>
+        <select name="rating_select">
+            <option value="LOWEST">Lowest First</option>
+            <option value="HIGHEST">Highest First</option>
+            <option selected value="NO_PREFERENCE">No Preference</option>
+        </select>
+
+        <input type="submit" value="Search">
     </form>
-    <h4> Type in Another Actor Here:</h4>
-    <form method="post">
-    {% csrf_token %}
-        <input type="text" name="text" placeholder="Enter text here">
-    </form>
-    <h4>Type in a Director Here:</h4>
-    <form method="post">
-    {% csrf_token %}
-        <input type="text" name="text" placeholder="Enter text here">
-    </form>
-    <h4>Type in Another Director Here:</h4>
-    <form method="post">
-    {% csrf_token %}
-        <input type="text" name="text" placeholder="Enter text here">
-    </form>
-
-    <h4>Rating Preference?</h4>
-    <select datatype="text" id="ratingSelect" name="ratingSelect">
-        <option selected>--------------------</option>
-        <option>5 Stars</option>
-        <option>4 Stars & Above</option>
-        <option>3 Stars & Above</option>
-        <option>2 Stars & Above</option>
-    </select>
-
-
-
-
-
-
-
-
-
-
-
-</form>
+</body>
+</html>
