@@ -8,7 +8,7 @@ urlpatterns = [
     path("signout", views.signout, name="signout"),
     path("continue", views.continue_to_search, name="continue_to_search"),
     path("activate/<uidb64>/<token>", views.activate, name="activate"),
-    path("recommendations/<str:actor>/<str:director>/<str:genre>/", views.get_movie_recommendations,
-         name="recommendations"),
+    path('CineMatch/recommendations/<str:actor>/<str:director>/<str:genre>/', views.get_movie_recommendations,
+         name='get_movie_recommendations'),
     path("search", views.search, name="search_results"),
 ]

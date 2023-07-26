@@ -165,8 +165,13 @@ def search(request):
             elif director:
                 movies = fetch_director_movies(director)
             elif genre and genre != 'NO_PREFERENCE':
-                # Convert genre ID to string before passing it to fetch_movie_data
-                movies = fetch_movie_data(str(genre))
+                genre_id = fetch_genre_id(genre)  # Fetch the genre ID based on the genre name
+                if genre_id:
+                    movies = fetch_movie_data(genre_id)
+                else:
+                    # Handle the case where the genre name is not found
+                    error_message = "Invalid genre selected."
+                    return render(request, "CineMatch/search.html", {"form": form, "error_message": error_message})
             else:
                 # Handle the case where no criteria is selected
                 error_message = "Please select an actor, director, or genre."
@@ -195,6 +200,7 @@ def get_movie_recommendations(request, actor, director, genre):
         # Get the query parameters from the URL
         actor_name = request.GET.get('actor_select')
         director_name = request.GET.get('director_select')
+        genre_id = request.GET.get('genre_select')
         rating_preference = request.GET.get('rating_select', 'NO_PREFERENCE')
 
         # Check if both actor and director are entered
@@ -207,9 +213,13 @@ def get_movie_recommendations(request, actor, director, genre):
             movies = fetch_actor_movies(actor_name)
         elif director_name:
             movies = fetch_director_movies(director_name)
+        elif genre_id and genre_id != 'NO_PREFERENCE':
+            # Convert genre ID to string before passing it to fetch_movie_data
+            movies = fetch_movie_data(genre_id)
         else:
-            query_params = genre
-            movies = fetch_movie_data(query_params)
+            # Handle the case where no criteria is selected
+            error_message = "Please select an actor, director, or genre."
+            return render(request, "CineMatch/search.html", {"error_message": error_message})
 
         # Sort movies based on rating preference (if applicable)
         if rating_preference == 'LOWEST':
@@ -250,6 +260,29 @@ def fetch_movie_data(genre_id):
         # Handle API request errors here
         print(f"Error fetching movie data: {e}")
         return []
+
+
+def fetch_genre_id(genre_name):
+    api_key = '898686cb40052c4a3aeb81c6101d95ea'
+    api_url = f'https://api.themoviedb.org/3/genre/movie/list'
+    params = {
+        'api_key': api_key,
+        'language': 'en-US'
+    }
+
+    try:
+        response = req.get(api_url, params=params)
+        response.raise_for_status()
+        data = response.json()
+        genres = data.get('genres', [])
+        for genre in genres:
+            if genre_name.lower() == genre.get('name', '').lower():
+                return str(genre.get('id'))
+        return None
+    except req.exceptions.RequestException as e:
+        # Handle API request errors here
+        print(f"Error fetching genre ID: {e}")
+        return None
 
 
 def fetch_actor_id(actor_name):

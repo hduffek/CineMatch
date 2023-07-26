@@ -10,6 +10,7 @@
         {% for movie in movies %}
             <li>
                 <h2>{{ movie.title }}</h2>
+                <img src="https://image.tmdb.org/t/p/w500/{{ movie.poster_path }}" alt="{{ movie.title }} Poster">
                 <p>Release Date: {{ movie.release_date }}</p>
                 <p>Vote Average: {{ movie.vote_average }}</p>
                 <p>Overview: {{ movie.overview }}</p>
