@@ -3,3 +3,6 @@ The application CineMatch is the database for movie and TV shows. The app has bu
 
 # Release Notes (7/14/2023)
 Project currently supports login functionality and user email confirmation. A questionnaire has been added but not integrated, the user profile also has yet to be expanded. This is in large part due to the integration of the database TMDB. We're confident we can integrate the data we need, but the setup has proven more daunting than anticipated. These will be our main focuses moving into the next milestone; user profile expansion, database utilization, visible end-result for user choices.
+
+# Release Notes (7/27/2023)
+CineMatch now has a questionnaire; the user can login, pick genre/actor/director/rating preference and search the top 5 results. The user also has the option to just press "Search" without entering any fields, and thus is given the top 5 most relevant results according to TMDB. User profile functionalities (favorites list, general profile and info page) have yet to be implemeneted, but are in the pipeline. What's also being developed is the mixing of two search fields, i.e., searching for a desired actor's starred movies in a selected genre. The aesthetic aspect of the project will be our final commitment.
