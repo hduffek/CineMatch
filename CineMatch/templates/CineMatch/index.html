@@ -21,7 +21,7 @@
     <h3>Hello {{ fname }}</h3>
     <h4>You've been successfully logged in.</h4>
     <button type="submit"> <a href="{% url 'signout' %}"> Sign Out</a></button>
-    <button type="submit"> <a href="{% url 'search_results' %}">Continue</a></button>
+    <button><a href="{% url 'search_results' %}">Continue</a></button>
 
     {% else %}
     <button type="submit"> <a href="{% url 'signup' %}"> Sign Up</a></button>

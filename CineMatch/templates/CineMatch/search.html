@@ -5,7 +5,7 @@
     <title>Movie Search</title>
 </head>
 <body>
-    <form method="GET" action="{% url 'get_movie_recommendations' 'NO_ACTOR' 'NO_DIRECTOR' 'NO_GENRE' %}">
+    <form method="GET" action="{% url 'recommendations' 'NO_ACTOR' 'NO_DIRECTOR' 'NO_GENRE' %}">
         {% csrf_token %}
         <h4>Choose a genre:</h4>
         <select name="genre_select">
@@ -31,6 +31,7 @@
             <option value="HIGHEST">Highest First</option>
             <option selected value="NO_PREFERENCE">No Preference</option>
         </select>
+        <br><br>
 
         <input type="submit" value="Search">
     </form>
