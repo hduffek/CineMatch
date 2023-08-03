@@ -51,7 +51,7 @@ def get_movie_recommendations(request, actor, director, genre):
     return render(request, "CineMatch/recommendations.html", {"movies": top_5_movies})
 
 ------------------------------------------------------------
-# Now updating recommendation.html button which will display button to add movies to favorite list:
+# Now updating recommendation.html button which will display button to add movies to favorite list: The html file is on mysite under name favorite.html
 -------------------------------------------------
 # Now following code will update the url.py which include new view for adding movies to the favorite list:
 # urls.py
