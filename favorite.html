@@ -1,0 +1,21 @@
+<!-- recommendations.html -->
+{% extends "CineMatch/base.html" %}
+
+{% block content %}
+  <h1>Movie Recommendations</h1>
+  <ul>
+    {% for movie in movies %}
+      <li>
+        {{ movie.title }}
+        {% if not movie.is_favorite %}
+          <form method="post" action="{% url 'add_to_favorite' movie.id movie.title %}">
+            {% csrf_token %}
+            <button type="submit">Add to Favorites</button>
+          </form>
+        {% else %}
+          <span>(Already in Favorites)</span>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
