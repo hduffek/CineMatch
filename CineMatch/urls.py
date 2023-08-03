@@ -11,4 +11,5 @@ urlpatterns = [
     path("recommendations/<str:actor>/<str:director>/<str:genre>/", views.get_movie_recommendations,
          name="recommendations"),
     path("search", views.search, name="search_results"),
+    #path("profile", views.profile, name="profile"),
 ]

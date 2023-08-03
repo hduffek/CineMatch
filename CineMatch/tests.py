@@ -22,7 +22,7 @@ class ViewsTests(TestCase):
         url = reverse("recommendations", args=[actor, director, genre])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "CineMatch/recommendations.html")
+        self.assertTemplateUsed(response, "CineMatch/search.html")
 
 
 class HelperFunctionsTests(TestCase):
