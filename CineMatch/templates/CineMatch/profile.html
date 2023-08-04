@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>User Profile</title>
+</head>
+<body>
+    <h1>Welcome, {{ user.username }}!</h1>
+    <h2>Your Favorite Movies</h2>
+    <ul>
+        {% for movie in favorite_movies %}
+            <li>
+                {{ movie.movie_title }}
+                <a href="{% url 'add_to_favorite' movie.movie_id movie.movie_title %}">(Remove from Favorites)</a>
+            </li>
+        {% empty %}
+            <li>No favorite movies yet.</li>
+        {% endfor %}
+    </ul>
+    <p><a href="{% url 'signout' %}">Sign Out</a></p>
+</body>
+</html>
+

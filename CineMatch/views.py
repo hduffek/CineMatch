@@ -3,6 +3,7 @@ import requests as req
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail, EmailMessage
 from django.shortcuts import redirect
@@ -14,6 +15,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from mysite import settings
 from .forms import QuestionnaireForm
 from .tokens import generate_token
+from .models import FavoriteMovie
 
 
 def home(request):
@@ -135,6 +137,13 @@ TMDB_API_KEY = '898686cb40052c4a3aeb81c6101d95ea'
 TMDB_BASE_URL = 'https://api.themoviedb.org/3/'
 
 
+@login_required
+def profile(request):
+    user = request.user
+    favorite_movies = FavoriteMovie.objects.filter(user=user)
+    return render(request, "CineMatch/profile.html", {"user": user, "favorite_movies": favorite_movies})
+
+
 def search(request):
     form = QuestionnaireForm()
 
@@ -173,6 +182,7 @@ def continue_to_search(request):
     return render(request, "CineMatch/search.html")
 
 
+@login_required
 def get_movie_recommendations(request, actor, director, genre):
     # Get the query parameters from the URL
     actor_name = request.GET.get('actor_select', actor)
@@ -212,7 +222,27 @@ def get_movie_recommendations(request, actor, director, genre):
     # Get the top 5 movie results
     top_5_movies = movies[:5]
     print(f'returning movies from recommendations')
+    user = request.user
+    for movie in top_5_movies:
+        movie_id = movie['id']
+        movie_title = movie['title']
+        movie['is_favorite'] = FavoriteMovie.objects.filter(user=user, movie_id=movie_id).exists()
+
     return render(request, "CineMatch/recommendations.html", {"movies": top_5_movies})
+
+
+@login_required
+def add_to_favorite(request, movie_id, movie_title):
+    # Check if the movie is already in the favorite list for the current user
+    user = request.user
+    if not FavoriteMovie.objects.filter(user=user, movie_id=movie_id).exists():
+        # Add the movie to the user's favorite list
+        favorite_movie = FavoriteMovie(user=user, movie_id=movie_id, movie_title=movie_title)
+        favorite_movie.save()
+        messages.success(request, f"{movie_title} added to your favorite list.")
+    else:
+        messages.info(request, f"{movie_title} is already in your favorite list.")
+    return redirect('profile')
 
 
 def fetch_movie_data(genre_id, actor_id=None, director_id=None):
