@@ -1,5 +1,6 @@
 import random
 import requests as req
+import config
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -248,10 +249,9 @@ def add_to_favorite(request, movie_id, movie_title):
 def fetch_movie_data(genre_id, actor_id=None, director_id=None):
     print(f'Genre ID: {genre_id}, Actor ID: {actor_id}, Director ID: {director_id}')
 
-    api_key = '898686cb40052c4a3aeb81c6101d95ea'
     api_url = f'https://api.themoviedb.org/3/discover/movie'
     params = {
-        'api_key': api_key,
+        'api_key': config.api_key,
         'with_genres': genre_id,
         'sort_by': 'popularity.desc',
         'include_adult': 'false',
@@ -279,10 +279,9 @@ def fetch_movie_data(genre_id, actor_id=None, director_id=None):
 
 
 def fetch_genre_id(genre_name):
-    api_key = '898686cb40052c4a3aeb81c6101d95ea'
     api_url = f'https://api.themoviedb.org/3/genre/movie/list'
     params = {
-        'api_key': api_key,
+        'api_key': config.api_key,
         'language': 'en-US'
     }
 
@@ -308,10 +307,9 @@ def fetch_genre_id(genre_name):
 
 
 def fetch_actor_id(actor_name):
-    api_key = '898686cb40052c4a3aeb81c6101d95ea'
     api_url = f'https://api.themoviedb.org/3/search/person'
     params = {
-        'api_key': api_key,
+        'api_key': config.api_key,
         'query': actor_name,
     }
 
@@ -335,10 +333,9 @@ def fetch_actor_id(actor_name):
 
 
 def fetch_director_id(director_name):
-    api_key = '898686cb40052c4a3aeb81c6101d95ea'
     api_url = f'https://api.themoviedb.org/3/search/person'
     params = {
-        'api_key': api_key,
+        'api_key': config.api_key,
         'query': director_name,
     }
 
@@ -359,13 +356,12 @@ def fetch_director_id(director_name):
 
 
 def fetch_actor_movies(actor_name):
-    api_key = '898686cb40052c4a3aeb81c6101d95ea'
     base_url = 'https://api.themoviedb.org/3'
     endpoint = '/search/person'
 
     # Search for actors based on the given name
     params = {
-        'api_key': api_key,
+        'api_key': config.api_key,
         'language': 'en-US',
         'query': actor_name
     }
@@ -383,7 +379,7 @@ def fetch_actor_movies(actor_name):
                 # Fetch movies starring the actor based on their ID
                 endpoint = f'/person/{actor_id}/movie_credits'
                 params = {
-                    'api_key': api_key,
+                    'api_key': config.api_key,
                     'language': 'en-US',
                 }
                 response = req.get(base_url + endpoint, params=params)
@@ -422,13 +418,12 @@ def fetch_actor_genre_movies(actor_name, genre_name):
 
 
 def fetch_director_movies(director_name):
-    api_key = '898686cb40052c4a3aeb81c6101d95ea'
     base_url = 'https://api.themoviedb.org/3'
     endpoint = '/search/person'
 
     # Search for the director's ID based on their name
     params = {
-        'api_key': api_key,
+        'api_key': config.api_key,
         'language': 'en-US',
         'query': director_name
     }
@@ -448,7 +443,7 @@ def fetch_director_movies(director_name):
         # Fetch all movies that have the director's ID in the crew
         endpoint = f'/discover/movie'
         params = {
-            'api_key': api_key,
+            'api_key': config.api_key,
             'language': 'en-US',
             'with_crew': f'{director_id}',
             'sort_by': 'popularity.desc',
@@ -468,7 +463,7 @@ def fetch_director_movies(director_name):
             movie_id = movie['id']
             credits_endpoint = f'/movie/{movie_id}/credits'
             credits_params = {
-                'api_key': api_key,
+                'api_key': config.api_key,
                 'language': 'en-US'
             }
 
@@ -490,7 +485,6 @@ def fetch_director_movies(director_name):
 
 
 def fetch_movies_for_actor_in_director(actor_name, director_name):
-    api_key = '898686cb40052c4a3aeb81c6101d95ea'
     base_url = 'https://api.themoviedb.org/3'
 
     # Fetch the actor's ID
@@ -518,7 +512,7 @@ def fetch_movies_for_actor_in_director(actor_name, director_name):
         movie_id = movie['id']
         credits_endpoint = f'/movie/{movie_id}/credits'
         credits_params = {
-            'api_key': api_key,
+            'api_key': config.api_key,
             'language': 'en-US'
         }
 
