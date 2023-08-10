@@ -1,7 +1,9 @@
+## Import statements
 from django.db import models
 from django.contrib.auth.models import User
 
 
+## Models for questionnaire categories
 class Questionnaire(models.Model):
     genre_select = models.CharField(max_length=100, choices=(
         ('', '----------------------'),
@@ -26,9 +28,9 @@ class Questionnaire(models.Model):
 
 class FavoriteMovie(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    movie_id = models.IntegerField()  # Storing the TMDB movie ID for each favorite movie
+    movie_id = models.IntegerField()  ## Storing the TMDB movie ID for each favorite movie
     movie_title = models.CharField(max_length=200)
-    # Add any other fields you want to store for favorite movies
+    ## Add any other fields you want to store for favorite movies
 
     def __str__(self):
         return f"{self.user.username} - {self.movie_title}"
@@ -40,4 +42,3 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
-
