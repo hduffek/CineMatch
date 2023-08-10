@@ -1,6 +1,8 @@
+## Import statements
 from django.urls import path
 from . import views
 
+## Establishing paths for urls
 urlpatterns = [
     path("", views.home, name="home"),
     path("signin", views.signin, name="signin"),
@@ -11,5 +13,6 @@ urlpatterns = [
     path("recommendations/<str:actor>/<str:director>/<str:genre>/", views.get_movie_recommendations,
          name="recommendations"),
     path("search", views.search, name="search_results"),
-    #path("profile", views.profile, name="profile"),
+    path('add_to_favorite/<int:movie_id>/<str:movie_title>/', views.add_to_favorite, name='add_to_favorite'),
+    path("profile", views.profile, name="profile"),
 ]

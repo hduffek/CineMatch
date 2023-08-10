@@ -20,6 +20,14 @@ p {font-family: "Tahoma"; color: ghostwhite;}
                 <p>Release Date: {{ movie.release_date }}</p>
                 <p>Vote Average: {{ movie.vote_average }}</p>
                 <p>Overview: {{ movie.overview }}</p>
+                {% if not movie.is_favorite %}
+                <form method="post" action="{% url 'add_to_favorite' movie.id movie.title %}">
+                    {% csrf_token %}
+                    <button type="submit">Add to Favorites</button>
+                </form>
+                {% else %}
+                <span>(Already in Favorites)</span>
+                {% endif %}
             </li>
         {% endfor %}
     </ul>
