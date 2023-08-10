@@ -1,4 +1,6 @@
 import requests as req
+from django.core.files.storage import FileSystemStorage
+
 from .config import config
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -13,9 +15,9 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 
 from mysite import settings
-from .forms import QuestionnaireForm
+from .forms import QuestionnaireForm, BioForm
 from .tokens import generate_token
-from .models import FavoriteMovie
+from .models import FavoriteMovie, UserProfile
 
 
 def home(request):
@@ -133,15 +135,25 @@ def activate(request, uidb64, token):
         return render(request, "activation_failed.html")
 
 
-TMDB_API_KEY = '898686cb40052c4a3aeb81c6101d95ea'
 TMDB_BASE_URL = 'https://api.themoviedb.org/3/'
 
 
 @login_required
 def profile(request):
     user = request.user
+    user_profile, created = UserProfile.objects.get_or_create(user=user)
     favorite_movies = FavoriteMovie.objects.filter(user=user)
-    return render(request, "CineMatch/profile.html", {"user": user, "favorite_movies": favorite_movies})
+
+    if request.method == 'POST':
+        bio_form = BioForm(request.POST, instance=user_profile)
+        if bio_form.is_valid():
+            bio_form.save()
+            messages.success(request, "Bio saved successfully.")
+    else:
+        bio_form = BioForm(instance=user_profile)
+
+    return render(request, "CineMatch/profile.html",
+                  {"user": user, "favorite_movies": favorite_movies, "bio_form": bio_form})
 
 
 def search(request):
@@ -235,13 +247,23 @@ def get_movie_recommendations(request, actor, director, genre):
 def add_to_favorite(request, movie_id, movie_title):
     # Check if the movie is already in the favorite list for the current user
     user = request.user
-    if not FavoriteMovie.objects.filter(user=user, movie_id=movie_id).exists():
-        # Add the movie to the user's favorite list
-        favorite_movie = FavoriteMovie(user=user, movie_id=movie_id, movie_title=movie_title)
-        favorite_movie.save()
-        messages.success(request, f"{movie_title} added to your favorite list.")
+
+    # Check the number of movies in the user's favorites list
+    num_favorite_movies = FavoriteMovie.objects.filter(user=user).count()
+
+    # Limit the number of favorite movies to 15
+    if num_favorite_movies >= 15:
+        messages.warning(request, "You can only have up to 15 favorite movies.")
     else:
-        messages.info(request, f"{movie_title} is already in your favorite list.")
+        # Check if the movie is already in the favorite list for the current user
+        if not FavoriteMovie.objects.filter(user=user, movie_id=movie_id).exists():
+            # Add the movie to the user's favorite list
+            favorite_movie = FavoriteMovie(user=user, movie_id=movie_id, movie_title=movie_title)
+            favorite_movie.save()
+        else:
+            # Remove the movie from the user's favorite list
+            FavoriteMovie.objects.filter(user=user, movie_id=movie_id).delete()
+
     return redirect('profile')
 
 

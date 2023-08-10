@@ -27,6 +27,7 @@ img {position: absolute; margin-left: -510px; bottom:0px; width:1150px; height:5
     <h4>You've been successfully logged in.</h4>
     <button type="submit"> <a href="{% url 'signout' %}"> Sign Out</a></button>
     <button><a href="{% url 'search_results' %}">Continue</a></button>
+    <button><a href="{% url 'profile' %}">Profile</a></button>
 
     {% else %}
     <button type="submit"> <a href="{% url 'signup' %}"> Sign Up</a></button>
