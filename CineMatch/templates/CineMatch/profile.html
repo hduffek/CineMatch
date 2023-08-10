@@ -45,8 +45,7 @@
     <h2>Your Profile</h2>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <label for="username">Username: {{ user.username }}</label>
-        <br>
+        <h3>Username: {{ user.username }}</h3>
         <label for="bio">Bio:</label>
         <textarea name="bio" id="bio" rows="4" cols="50">{{ bio_form.instance.bio }}</textarea>
         <button type="submit">Save Bio</button>
