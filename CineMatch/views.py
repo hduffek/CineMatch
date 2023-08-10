@@ -6,6 +6,7 @@ from .config import config
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail, EmailMessage
 from django.shortcuts import redirect
@@ -214,6 +215,7 @@ def search(request):
 def continue_to_search(request):
     return render(request, "CineMatch/search.html")
 
+ 
 @login_required
 def get_movie_recommendations(request, actor, director, genre):
     """! function to query database for filters.
@@ -281,7 +283,7 @@ def add_to_favorite(request, movie_id, movie_title):
     else:
         ## Check if the movie is already in the favorite list for the current user
         if not FavoriteMovie.objects.filter(user=user, movie_id=movie_id).exists():
-            # Add the movie to the user's favorite list
+            ## Add the movie to the user's favorite list
             favorite_movie = FavoriteMovie(user=user, movie_id=movie_id, movie_title=movie_title)
             favorite_movie.save()
         else:
@@ -290,13 +292,13 @@ def add_to_favorite(request, movie_id, movie_title):
 
     return redirect('profile')
 
+
 def fetch_movie_data(genre_id, actor_id=None, director_id=None):
     """! function to query database for movie data ids
     @param request  send information to server.
     @return movie data fetched.
     """
     print(f'Genre ID: {genre_id}, Actor ID: {actor_id}, Director ID: {director_id}')
-
 
     api_url = f'https://api.themoviedb.org/3/discover/movie'
     params = {
@@ -322,7 +324,7 @@ def fetch_movie_data(genre_id, actor_id=None, director_id=None):
         movies = data.get('results', [])
         return movies
     except req.exceptions.RequestException as e:
-        # Handle API request errors here
+        ## Handle API request errors here
         print(f"Error fetching movie data: {e}")
         return []
 
@@ -332,7 +334,6 @@ def fetch_genre_id(genre_name):
     @param request  send information to server.
     @return movie data fetched.
     """
-
     api_url = f'https://api.themoviedb.org/3/genre/movie/list'
     params = {
         'api_key': config.api_key,
@@ -365,7 +366,6 @@ def fetch_actor_id(actor_name):
     @param request  send information to server.
     @return movie data fetched.
     """
-
     api_url = f'https://api.themoviedb.org/3/search/person'
     params = {
         'api_key': config.api_key,
@@ -396,7 +396,6 @@ def fetch_director_id(director_name):
     @param request  send information to server.
     @return movie data fetched.
     """
-
     api_url = f'https://api.themoviedb.org/3/search/person'
     params = {
         'api_key': config.api_key,
@@ -424,7 +423,6 @@ def fetch_actor_movies(actor_name):
     @param request  send information to server.
     @return movie data fetched.
     """
-
     base_url = 'https://api.themoviedb.org/3'
     endpoint = '/search/person'
 
@@ -477,7 +475,7 @@ def fetch_actor_genre_movies(actor_name, genre_name):
     actor_id = fetch_actor_id(actor_name)
 
     if not actor_id:
-        # Handle the case where the actor is not found
+        ## Handle the case where the actor is not found
         print(f'No actor_id')
         return []
 
@@ -495,7 +493,6 @@ def fetch_director_movies(director_name):
     @param request  send information to server.
     @return movie data fetched.
     """
-
     base_url = 'https://api.themoviedb.org/3'
     endpoint = '/search/person'
 
@@ -567,7 +564,6 @@ def fetch_movies_for_actor_in_director(actor_name, director_name):
     @param request  send information to server.
     @return movie data fetched.
     """
-
     base_url = 'https://api.themoviedb.org/3'
 
     ## Fetch the actor's ID
