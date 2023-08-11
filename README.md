@@ -6,3 +6,6 @@ Project currently supports login functionality and user email confirmation. A qu
 
 # Release Notes (7/27/2023)
 CineMatch now has a questionnaire; the user can login, pick genre/actor/director/rating preference and search the top 5 results. The user also has the option to just press "Search" without entering any fields, and thus is given the top 5 most relevant results according to TMDB. User profile functionalities (favorites list, general profile and info page) have yet to be implemeneted, but are in the pipeline. What's also being developed is the mixing of two search fields, i.e., searching for a desired actor's starred movies in a selected genre. The aesthetic aspect of the project will be our final commitment.
+
+# Release Notes (8/10/2023)
+Our latest milestone has added more user stories: profile page displaying username, bio, and favorites list. The favorites list (capped at 15 movies) now has the ability to remove movies selections from the profile page. The search results cap has also been moved from 5 to 100 to allow for a greater number of recommendations. Future implemenetations would look to refine the user story process. Allowing for more individualization via streaming service preference, a previously watched list, etc.
