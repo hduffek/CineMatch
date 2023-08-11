@@ -1,6 +1,5 @@
 ## Imports
 import requests as req
-from django.core.files.storage import FileSystemStorage
 
 from .config import config
 from django.contrib import messages
@@ -19,6 +18,11 @@ from mysite import settings
 from .forms import QuestionnaireForm, BioForm
 from .tokens import generate_token
 from .models import FavoriteMovie, UserProfile
+global movie_num
+
+## initialize url for movie database
+TMDB_BASE_URL = 'https://api.themoviedb.org/3/'
+movie_num = 100
 
 
 def home(request):
@@ -152,9 +156,6 @@ def activate(request, uidb64, token):
     else:
         return render(request, "activation_failed.html")
 
-## initialize url for movie database
-TMDB_BASE_URL = 'https://api.themoviedb.org/3/'
-
 
 @login_required
 def profile(request):
@@ -215,13 +216,14 @@ def search(request):
 def continue_to_search(request):
     return render(request, "CineMatch/search.html")
 
- 
+
 @login_required
 def get_movie_recommendations(request, actor, director, genre):
     """! function to query database for filters.
     @param request  send information to server.
     @return movie data fetched.
     """
+    global movie_num
     ## Get the query parameters from the URL
     actor_name = request.GET.get('actor_select', actor)
     director_name = request.GET.get('director_select', director)
@@ -258,15 +260,15 @@ def get_movie_recommendations(request, actor, director, genre):
         movies.sort(key=lambda x: x.get('vote_average', 0), reverse=True)
 
     ## Get the top 5 movie results
-    top_5_movies = movies[:5]
+    top_movies = movies[:movie_num]
     print(f'returning movies from recommendations')
     user = request.user
-    for movie in top_5_movies:
+    for movie in top_movies:
         movie_id = movie['id']
         movie_title = movie['title']
         movie['is_favorite'] = FavoriteMovie.objects.filter(user=user, movie_id=movie_id).exists()
 
-    return render(request, "CineMatch/recommendations.html", {"movies": top_5_movies})
+    return render(request, "CineMatch/recommendations.html", {"movies": top_movies})
 
 
 @login_required

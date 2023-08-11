@@ -2,6 +2,7 @@
 from django import forms
 from .models import Questionnaire, UserProfile
 
+
 ## Form for questionnaire created
 class QuestionnaireForm(forms.ModelForm):
     class Meta:
