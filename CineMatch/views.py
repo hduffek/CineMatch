@@ -22,7 +22,6 @@ global movie_num
 
 ## initialize url for movie database
 TMDB_BASE_URL = 'https://api.themoviedb.org/3/'
-movie_num = 100
 
 
 def home(request):
@@ -123,7 +122,7 @@ def signup(request):
         email.fail_silently = True
         email.send()
 
-        return redirect("login")
+        return redirect("home")
 
     return render(request, "CineMatch/signup.html")
 
@@ -259,7 +258,8 @@ def get_movie_recommendations(request, actor, director, genre):
     elif rating_preference == 'HIGHEST':
         movies.sort(key=lambda x: x.get('vote_average', 0), reverse=True)
 
-    ## Get the top 5 movie results
+    ## Get the top movie results
+    movie_num = 100
     top_movies = movies[:movie_num]
     print(f'returning movies from recommendations')
     user = request.user
@@ -311,11 +311,11 @@ def fetch_movie_data(genre_id, actor_id=None, director_id=None):
         'include_video': 'false'
     }
 
-    ## Add the actor ID to the request parameters if it's provided
+    # Add the actor ID to the request parameters if it's provided
     if actor_id:
         params['with_cast'] = actor_id
 
-    ## Add the director's ID to the request parameters if it's provided
+    # Add the director's ID to the request parameters if it's provided
     if director_id:
         params['with_crew'] = director_id
 
@@ -326,7 +326,7 @@ def fetch_movie_data(genre_id, actor_id=None, director_id=None):
         movies = data.get('results', [])
         return movies
     except req.exceptions.RequestException as e:
-        ## Handle API request errors here
+        # Handle API request errors here
         print(f"Error fetching movie data: {e}")
         return []
 
@@ -585,7 +585,7 @@ def fetch_movies_for_actor_in_director(actor_name, director_name):
     print(f'Actor ID: {actor_id}, Director ID: {director_id}')
 
     ## Fetch movies based on the actor ID and director ID
-    actor_movies = fetch_movie_data(genre_id=None, actor_id=actor_id, director_id=None)
+    actor_movies = fetch_movie_data(genre_id=None, actor_id=actor_id, director_id=director_id)
     director_movies = []
 
     ## Fetch credits data for each movie and filter the movies based on director's name
